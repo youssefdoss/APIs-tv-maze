@@ -5,7 +5,7 @@ const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 const BASE_URL = "http://api.tvmaze.com/";
 
-const NO_IMAGE_ADDRESS = "https://tinyurl.com/tv-missing";
+const NO_IMAGE_URL = "https://tinyurl.com/tv-missing"; // // TODO: change to NO_IMAGE
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -16,41 +16,37 @@ const NO_IMAGE_ADDRESS = "https://tinyurl.com/tv-missing";
 
 async function getShowsByTerm(term) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
-  let showData = await axios.get(`${BASE_URL}search/shows?q=${term}`);
-  let showDataList = showData.data;
-  let shows = [];
+  const showData = await axios.get(`${BASE_URL}search/shows`, {
+    params: { q: term },
+  });
+  // const showData = await axios.get(`${BASE_URL}search/shows?q=${term}`); // // TODO: CHANGE TO CONST. DONT HARDCODE. CHECK OUT PARAMS OBJECT
+  const showDataList = showData.data;
+  // let shows = [];
 
-  for (let show of showDataList) {
+  // console.log(shows);
+
+  const shows = showDataList.map((showVar) => {
+    return {
+      id: showVar.show.id,
+      name: showVar.show.name,
+      summary: showVar.show.summary,
+      image: showVar.show.image.medium || NO_IMAGE_URL,
+    };
+  });
+  /* for (let show of shows) {
+    // TODO: refactor to use .map
     let showInfo = {
       id: show.show.id,
       name: show.show.name,
       summary: show.show.summary,
-      image: show.show.image.medium || NO_IMAGE_ADDRESS,
+      image: show.show.image.medium || NO_IMAGE_URL,
     };
 
     shows.push(showInfo);
-  }
-
+  } */
+  // console.log(showDataList)
+  console.log(shows)
   return shows;
-
-  // return [
-  //   {
-  //     id: 1767,
-  //     name: "The Bletchley Circle",
-  //     summary:
-  //       `<p><b>The Bletchley Circle</b> follows the journey of four ordinary
-  //          women with extraordinary skills that helped to end World War II.</p>
-  //        <p>Set in 1952, Susan, Millie, Lucy and Jean have returned to their
-  //          normal lives, modestly setting aside the part they played in
-  //          producing crucial intelligence, which helped the Allies to victory
-  //          and shortened the war. When Susan discovers a hidden code behind an
-  //          unsolved murder she is met by skepticism from the police. She
-  //          quickly realises she can only begin to crack the murders and bring
-  //          the culprit to justice with her former friends.</p>`,
-  //     image:
-  //         "http://static.tvmaze.com/uploads/images/medium_portrait/147/369403.jpg"
-  //   }
-  // ]
 }
 
 /** Given list of shows, create markup for each and to DOM */
@@ -64,7 +60,7 @@ function populateShows(shows) {
          <div class="media">
            <img
               src="${show.image}"
-              alt=""
+              alt="" // TODO: add alt text
               class="w-25 me-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
@@ -103,7 +99,7 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) { }
+// async function getEpisodesOfShow(id) {}
 
 /** Write a clear docstring for this function... */
 
