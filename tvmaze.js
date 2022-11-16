@@ -5,7 +5,7 @@ const $episodesArea = $("#episodesArea");
 const $searchForm = $("#searchForm");
 const BASE_URL = "http://api.tvmaze.com/";
 
-const NO_IMAGE_URL = "https://tinyurl.com/tv-missing"; // // TODO: change to NO_IMAGE
+const NO_IMAGE_URL = "https://tinyurl.com/tv-missing"; 
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -19,11 +19,8 @@ async function getShowsByTerm(term) {
   const showData = await axios.get(`${BASE_URL}search/shows`, {
     params: { q: term },
   });
-  // const showData = await axios.get(`${BASE_URL}search/shows?q=${term}`); // // TODO: CHANGE TO CONST. DONT HARDCODE. CHECK OUT PARAMS OBJECT
-  const showDataList = showData.data;
-  // let shows = [];
 
-  // console.log(shows);
+  const showDataList = showData.data;
 
   const shows = showDataList.map((showVar) => {
     return {
@@ -33,19 +30,7 @@ async function getShowsByTerm(term) {
       image: showVar.show.image.medium || NO_IMAGE_URL,
     };
   });
-  /* for (let show of shows) {
-    // TODO: refactor to use .map
-    let showInfo = {
-      id: show.show.id,
-      name: show.show.name,
-      summary: show.show.summary,
-      image: show.show.image.medium || NO_IMAGE_URL,
-    };
 
-    shows.push(showInfo);
-  } */
-  // console.log(showDataList)
-  console.log(shows)
   return shows;
 }
 
@@ -60,7 +45,7 @@ function populateShows(shows) {
          <div class="media">
            <img
               src="${show.image}"
-              alt="" // TODO: add alt text
+              alt="picture of ${show.name}"
               class="w-25 me-3">
            <div class="media-body">
              <h5 class="text-primary">${show.name}</h5>
