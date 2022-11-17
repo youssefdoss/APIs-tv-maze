@@ -2,6 +2,7 @@
 
 const $showsList = $("#showsList");
 const $episodesArea = $("#episodesArea");
+const $episodesList = $("#episodesList");
 const $searchForm = $("#searchForm");
 const BASE_URL = "http://api.tvmaze.com/";
 
@@ -22,12 +23,13 @@ async function getShowsByTerm(term) {
 
   const showDataList = showData.data;
 
-  const shows = showDataList.map((showVar) => {
+  const shows = showDataList.map((show) => {
+    let eachShow = show.show;
     return {
-      id: showVar.show.id,
-      name: showVar.show.name,
-      summary: showVar.show.summary,
-      image: showVar.show.image.medium || NO_IMAGE_URL,
+      id: eachShow.id,
+      name: eachShow.name,
+      summary: eachShow.summary,
+      image: eachShow.image.medium || NO_IMAGE_URL,
     };
   });
 
@@ -84,8 +86,53 @@ $searchForm.on("submit", async function (evt) {
  *      { id, name, season, number }
  */
 
-// async function getEpisodesOfShow(id) {}
+async function getEpisodesOfShow(id) {
+  const episodeData = await axios.get(`${BASE_URL}shows/${id}/episodes`);
 
-/** Write a clear docstring for this function... */
+  const episodeDataList = episodeData.data;
 
-// function populateEpisodes(episodes) { }
+  const episodes = episodeDataList.map(({id, name, season, number}) => {
+    return {
+      id: id,
+      name: name,
+      season: season,
+      number: number
+    }
+  })
+
+  return episodes
+}
+
+/** Given episodes object, adds to the DOM list elements formatted properly
+ * with bespoke episode information
+ */
+
+function populateEpisodes(episodes) {
+  $episodesList.empty();
+
+  for (let episode of episodes) {
+    const $episode = $(
+      `<li data-episode-id=${episode.id}>${episode.name} (season ${episode.season}, number ${episode.number})</li>`
+    )
+
+    $episodesList.append($episode);
+  }
+}
+
+/**
+ * Handles a click of the episodes button. Retrievew specified shows' episodes
+ * and adds them to the dom (shows previously hidden episodes area).
+ */
+async function handleEpisodeClick(evt) {
+  const $show = $(evt.target).closest(".Show");
+  const showId = $show.data("showId");
+
+  const episodes = await getEpisodesOfShow(showId);
+
+  populateEpisodes(episodes);
+
+  $episodesArea.show();
+}
+
+$showsList.on('click', 'button', handleEpisodeClick);
+
