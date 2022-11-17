@@ -92,12 +92,7 @@ async function getEpisodesOfShow(id) {
   const episodeDataList = episodeData.data;
 
   const episodes = episodeDataList.map(({id, name, season, number}) => {
-    return {
-      id: id,
-      name: name,
-      season: season,
-      number: number
-    }
+    return {id, name, season, number};
   })
 
   return episodes
@@ -111,8 +106,9 @@ function populateEpisodes(episodes) {
   $episodesList.empty();
 
   for (let episode of episodes) {
+    const {id, name, season, number} = episode;
     const $episode = $(
-      `<li data-episode-id=${episode.id}>${episode.name} (season ${episode.season}, number ${episode.number})</li>`
+      `<li data-episode-id=${id}>${name} (season ${season}, number ${number})</li>`
     )
 
     $episodesList.append($episode);
@@ -120,7 +116,7 @@ function populateEpisodes(episodes) {
 }
 
 /**
- * Handles a click of the episodes button. Retrievew specified shows' episodes
+ * Handles a click of the episodes button. Retrieve specified shows' episodes
  * and adds them to the dom (shows previously hidden episodes area).
  */
 async function handleEpisodeClick(evt) {
