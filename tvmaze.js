@@ -6,7 +6,7 @@ const $episodesList = $("#episodesList");
 const $searchForm = $("#searchForm");
 const BASE_URL = "http://api.tvmaze.com/";
 
-const NO_IMAGE_URL = "https://tinyurl.com/tv-missing"; 
+const NO_IMAGE_URL = "https://tinyurl.com/tv-missing";
 
 /** Given a search term, search for tv shows that match that query.
  *
@@ -18,20 +18,24 @@ const NO_IMAGE_URL = "https://tinyurl.com/tv-missing";
 async function getShowsByTerm(term) {
   // ADD: Remove placeholder & make request to TVMaze search shows API.
   const showData = await axios.get(`${BASE_URL}search/shows`, {
-    params: { q: term },
+    params: { q: term, limit: "10" },
   });
 
   const showDataList = showData.data;
 
-  const shows = showDataList.map((show) => {
+  const shows = await showDataList.map((show) => {
     let eachShow = show.show;
     return {
       id: eachShow.id,
       name: eachShow.name,
       summary: eachShow.summary,
       image: eachShow.image.medium || NO_IMAGE_URL,
+      episodes: getEpisodesOfShow(eachShow.id).then(data => data),
     };
   });
+
+  console.log(shows)
+  // TODO: START TIMER HERE.
 
   return shows;
 }
@@ -91,11 +95,11 @@ async function getEpisodesOfShow(id) {
 
   const episodeDataList = episodeData.data;
 
-  const episodes = episodeDataList.map(({id, name, season, number}) => {
-    return {id, name, season, number};
-  })
+  const episodes = episodeDataList.map(({ id, name, season, number }) => {
+    return { id, name, season, number };
+  });
 
-  return episodes
+  return episodes;
 }
 
 /** Given episodes object, adds to the DOM list elements formatted properly
@@ -106,10 +110,10 @@ function populateEpisodes(episodes) {
   $episodesList.empty();
 
   for (let episode of episodes) {
-    const {id, name, season, number} = episode;
+    const { id, name, season, number } = episode;
     const $episode = $(
       `<li data-episode-id=${id}>${name} (season ${season}, number ${number})</li>`
-    )
+    );
 
     $episodesList.append($episode);
   }
@@ -130,5 +134,22 @@ async function handleEpisodeClick(evt) {
   $episodesArea.show();
 }
 
-$showsList.on('click', 'button', handleEpisodeClick);
+$showsList.on("click", "button", handleEpisodeClick);
 
+// daniels test
+
+// axios to get shows with search term. // 1 call
+// ^ limit of 10
+
+// axios per show that is returned
+// ^ potential issue if we ping more than 20 shows
+// ^ limit 10
+
+// reloading timer of 10 seconds
+
+//idea 2
+// 1 call to return all shows // this one doesnt work
+
+/* const response = await axios.get(HOST_NAME, {
+  params: { q: $searchTerm, api_key: API_KEY, limit: "1" },
+}); */
